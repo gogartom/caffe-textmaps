@@ -70,9 +70,13 @@ void DenseImageDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bott
   // sanity check label image
   cv::Mat cv_lab = ReadImageToCVMat(root_folder + lines_[lines_id_].second,
                                     new_height, new_width, false, true);
+
+  const int lab_height = cv_lab.rows;
+  const int lab_width = cv_lab.cols;
+
   CHECK(cv_lab.channels() == 1) << "Can only handle grayscale label images";
-  CHECK(cv_lab.rows == height && cv_lab.cols == width) << "Input and label "
-      << "image heights and widths must match";
+  //CHECK(cv_lab.rows == height && cv_lab.cols == width) << "Input and label "
+  //    << "image heights and widths must match";
   // image
     
   const int crop_size = this->layer_param_.transform_param().crop_size();
@@ -90,9 +94,9 @@ void DenseImageDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bott
     this->prefetch_data_.Reshape(batch_size, channels, height, width);
     this->transformed_data_.Reshape(1, channels, height, width);
     // similarly reshape label data blobs
-    top[1]->Reshape(batch_size, 1, height, width);
-    this->prefetch_label_.Reshape(batch_size, 1, height, width);
-    this->transformed_label_.Reshape(1, 1, height, width);
+    top[1]->Reshape(batch_size, 1, lab_height, lab_width);
+    this->prefetch_label_.Reshape(batch_size, 1, lab_height, lab_width);
+    this->transformed_label_.Reshape(1, 1, lab_height, lab_width);
   }
   LOG(INFO) << "output data size: " << top[0]->num() << ","
       << top[0]->channels() << "," << top[0]->height() << ","
@@ -128,12 +132,16 @@ void DenseImageDataLayer<Dtype>::InternalThreadEntry() {
   if (batch_size == 1 && crop_size == 0 && new_height == 0 && new_width == 0) {
     cv::Mat cv_img = ReadImageToCVMat(root_folder + lines_[lines_id_].first,
         0, 0, is_color);
+
+    cv::Mat cv_lab = ReadImageToCVMat(root_folder + lines_[lines_id_].second,
+        0, 0, false, true);
+
     this->prefetch_data_.Reshape(1, cv_img.channels(),
         cv_img.rows, cv_img.cols);
     this->transformed_data_.Reshape(1, cv_img.channels(),
         cv_img.rows, cv_img.cols);
-    this->prefetch_label_.Reshape(1, 1, cv_img.rows, cv_img.cols);
-    this->transformed_label_.Reshape(1, 1, cv_img.rows, cv_img.cols);
+    this->prefetch_label_.Reshape(1, 1, cv_lab.rows, cv_lab.cols);
+    this->transformed_label_.Reshape(1, 1, cv_lab.rows, cv_lab.cols);
   }
   Dtype* prefetch_data = this->prefetch_data_.mutable_cpu_data();
   Dtype* prefetch_label = this->prefetch_label_.mutable_cpu_data();
