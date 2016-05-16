@@ -1,5 +1,7 @@
-# Caffe TextMaps
-**This is a modified version of [Caffe](https://github.com/BVLC/caffe) which is used for Information Extraction from Web Pages.
+Caffe TextMaps
+==============
+
+This is a modified version of [Caffe](https://github.com/BVLC/caffe) which is used for Information Extraction from Web Pages.
 
 It is actually a merge of two Caffe extensions:
 
