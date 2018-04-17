@@ -48,8 +48,11 @@ class ROIPoolingLayer : public Layer<Dtype> {
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
 
   int channels_;
+  int num_spatial_axes_;
+  int depth_;
   int height_;
   int width_;
+  int pooled_d_;
   int pooled_height_;
   int pooled_width_;
   Dtype spatial_scale_;
